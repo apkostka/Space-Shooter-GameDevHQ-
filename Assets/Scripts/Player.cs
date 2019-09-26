@@ -5,14 +5,18 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     [SerializeField]
-    private float _speed = 5f;
+    private float _speed = 10f;
 
-    // set up Bounds object with camera view limits
+    // TODO: set up Bounds object with camera view limits
     [SerializeField]
-    private float _horizontalBound = 11.5f;
+    private float _horizontalBound = 13f;
     [SerializeField]
     private float _verticalBound = 3.8f;
 
+    [SerializeField]
+    private int _lives = 3;
+
+    // Laser
     [SerializeField]
     private float _fireRate = 0.15f;
     private float _nextFire = -1f;
@@ -20,9 +24,22 @@ public class Player : MonoBehaviour
     [SerializeField]
     private GameObject _laserPrefab = null;
 
+    // Player Mesh for animations
+    private Transform _playerMeshObjectTransform;
+    [SerializeField]
+    private float _bankAngleMultiplier = 15f;
+    [SerializeField]
+    private float _bankAngleSmooth = 20f;
+
+    private SpawnManager _spawnManager;
+
     // Start is called before the first frame update
     void Start()
     {
+        _playerMeshObjectTransform = this.gameObject.transform.GetChild(0);
+
+        _spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
+
         transform.position = new Vector3(0, 0, 0);
     }
 
@@ -31,9 +48,19 @@ public class Player : MonoBehaviour
     {
         CalculateMovement();
 
+        if (_playerMeshObjectTransform != null)
+        {
+            RotatePlayerMesh();
+        }
+
         if (Input.GetKeyDown(KeyCode.Space) & Time.time > _nextFire)
         {
             FireLaser();
+        }
+
+        if (_spawnManager == null)
+        {
+            Debug.LogError("SpawnManager is null");
         }
     }
 
@@ -68,6 +95,26 @@ public class Player : MonoBehaviour
     void FireLaser()
     {
         _nextFire = Time.time + _fireRate;
-        Instantiate(_laserPrefab, transform.position + new Vector3(0f, 0.8f, 0f), Quaternion.identity);
+        Instantiate(_laserPrefab, transform.position + new Vector3(0f, 1f, 0f), Quaternion.identity);
+    }
+
+    // Maybe this should be done in a PlayerMesh script?
+    void RotatePlayerMesh()
+    {
+        // Set Player rotation for bank effect
+        float horizontalInput = Input.GetAxis("Horizontal");
+        Quaternion target = Quaternion.Euler(-90, 0, -horizontalInput * _bankAngleMultiplier);
+        _playerMeshObjectTransform.rotation = Quaternion.Slerp(_playerMeshObjectTransform.rotation, target, Time.deltaTime * _bankAngleSmooth);
+    }
+
+    public void Damage()
+    {
+        _lives--;
+
+        if (_lives < 1)
+        {
+            _spawnManager.OnPlayerDeath();
+            Destroy(this.gameObject);
+        }
     }
 }
