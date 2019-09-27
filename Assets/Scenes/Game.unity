@@ -149,11 +149,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fffffeaae468d174785ebf430be48378, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _spawnRate: 1.5
+  _enemySpawnRate: 1.5
+  _powerupSpawnRateBase: 7
   _maxEnemies: 8
   _enemyPrefab: {fileID: 6017144279254629515, guid: d872be05de98fb54db9be2f2391399c4,
     type: 3}
   _enemyContainer: {fileID: 1797949537}
+  _tripleshotPowerupPrefab: {fileID: 6159293408161462704, guid: 63a1c305af2a3394abcf71fc1c9b2ebb,
+    type: 3}
 --- !u!4 &10027192
 Transform:
   m_ObjectHideFlags: 0
@@ -206,6 +209,10 @@ MonoBehaviour:
   _lives: 3
   _fireRate: 0.15
   _laserPrefab: {fileID: 6702500444460869047, guid: 2e3e583c1997a8a449dc23a4d625d60a,
+    type: 3}
+  _tripleshotActive: 0
+  _tripleshotDuration: 5
+  _tripleshotPrefab: {fileID: 7975192348594459279, guid: ab684ff7fe51b4148b8abf2cd9d588aa,
     type: 3}
 --- !u!212 &151722381
 SpriteRenderer:

@@ -2,23 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Powerup : MonoBehaviour
 {
     [SerializeField]
-    private float _speed;
-    private float _baseSpeed = 3;
-    private float _speedRangeSize = 1;
+    private GameObject _powerupPrefab;
+
+    [SerializeField]
+    private float _speed = 3f;
 
     [SerializeField]
     private float _verticalBound = 8f;
     [SerializeField]
-    private float _horizontalBound = 10f;
+    private float _horizontalBound = 9f;
 
     // Start is called before the first frame update
     void Start()
     {
-        _speed = Random.Range(_baseSpeed - _speedRangeSize, _baseSpeed + _speedRangeSize);
-
         SetRandomPositionAtTop();
     }
 
@@ -35,9 +34,10 @@ public class Enemy : MonoBehaviour
         }
 
     }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("Enemy Hit: " + other.tag);
+        Debug.Log("Powerup Hit: " + other.tag);
 
         if (other.tag == "Player")
         {
@@ -45,18 +45,11 @@ public class Enemy : MonoBehaviour
 
             if (player != null)
             {
-                player.Damage();
+                player.Powerup(this.tag);
                 Destroy(this.gameObject);
             }
         }
-        else if (other.tag == "Laser")
-        {
-            Destroy(other.gameObject);
-            Destroy(this.gameObject);
-        }
-
     }
-
     void CalculateMovement()
     {
         Vector3 direction = new Vector3(0, -1, 0);

@@ -5,7 +5,10 @@ using UnityEngine;
 public class SpawnManager : MonoBehaviour
 {
     [SerializeField]
-    private float _spawnRate = 1.5f;
+    private float _enemySpawnRate = 1.5f;
+    [SerializeField]
+    private float _powerupSpawnRateBase = 5f;
+    private float _powerupSpawnRateRange = 2f;
 
     [SerializeField]
     private int _maxEnemies = 8;
@@ -15,12 +18,16 @@ public class SpawnManager : MonoBehaviour
     [SerializeField]
     private GameObject _enemyContainer;
 
+    [SerializeField]
+    private GameObject _tripleshotPowerupPrefab;
+
     private bool _stopSpawning = false;
 
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(SpawnRoutine());
+        StartCoroutine(SpawnEnemyRoutine());
+        StartCoroutine(SpawnPowerupRoutine());
     }
 
     // Update is called once per frame
@@ -29,7 +36,7 @@ public class SpawnManager : MonoBehaviour
         
     }
 
-    IEnumerator SpawnRoutine()
+    IEnumerator SpawnEnemyRoutine()
     {
         while (_stopSpawning == false)
         {
@@ -40,7 +47,18 @@ public class SpawnManager : MonoBehaviour
                 newEnemy.transform.parent = _enemyContainer.transform;
             }
 
-            yield return new WaitForSeconds(_spawnRate);
+            yield return new WaitForSeconds(_enemySpawnRate);
+        }
+    }
+
+    IEnumerator SpawnPowerupRoutine()
+    {
+        while (_stopSpawning == false)
+        {
+            Vector3 posToSpawn = new Vector3(Random.Range(-9f, 9f), 8, 0);
+            GameObject newPowerup = Instantiate(_tripleshotPowerupPrefab, posToSpawn, Quaternion.identity);
+
+            yield return new WaitForSeconds(Random.Range(_powerupSpawnRateBase - _powerupSpawnRateRange, _powerupSpawnRateBase + _powerupSpawnRateRange));
         }
     }
 
