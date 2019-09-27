@@ -11,7 +11,8 @@ public class Enemy : MonoBehaviour
 
     [SerializeField]
     private float _verticalBound = 8f;
-    private float _horizontalBound = 12f;
+    [SerializeField]
+    private float _horizontalBound = 10f;
 
     // Start is called before the first frame update
     void Start()
@@ -28,7 +29,7 @@ public class Enemy : MonoBehaviour
         CalculateMovement();
 
         // if bottom of screen, respawn at top with new random x position
-        if (transform.position.y < -_verticalBound)
+        if (transform.position.y < -_verticalBound + 1) // makes up for length of ship
         {
             SetRandomPositionAtTop();
         }
@@ -36,7 +37,7 @@ public class Enemy : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("Hit: " + other.transform.name);
+        Debug.Log("Hit: " + other.tag);
 
         if (other.tag == "Player")
         {
@@ -45,14 +46,15 @@ public class Enemy : MonoBehaviour
             if (player != null)
             {
                 player.Damage();
+                Destroy(this.gameObject);
             }
         }
         else if (other.tag == "Laser")
         {
             Destroy(other.gameObject);
+            Destroy(this.gameObject);
         }
 
-        Destroy(this.gameObject);
     }
 
     void CalculateMovement()

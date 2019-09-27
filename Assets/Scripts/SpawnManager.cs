@@ -5,10 +5,10 @@ using UnityEngine;
 public class SpawnManager : MonoBehaviour
 {
     [SerializeField]
-    private float _spawnRate = 2f;
+    private float _spawnRate = 1.5f;
 
     [SerializeField]
-    private int _maxEnemies = 5;
+    private int _maxEnemies = 8;
 
     [SerializeField]
     private GameObject _enemyPrefab;
@@ -31,11 +31,15 @@ public class SpawnManager : MonoBehaviour
 
     IEnumerator SpawnRoutine()
     {
-        while (_stopSpawning == false)// & GameObject.FindGameObjectsWithTag("Enemy").Length < _maxEnemies)
+        while (_stopSpawning == false)
         {
-            Vector3 posToSpawn = new Vector3(Random.Range(-13f, 13f), 8, 0);
-            GameObject newEnemy = Instantiate(_enemyPrefab, posToSpawn, Quaternion.identity);
-            newEnemy.transform.parent = _enemyContainer.transform;
+            if (GameObject.FindGameObjectsWithTag("Enemy").Length <= _maxEnemies)
+            {
+                Vector3 posToSpawn = new Vector3(Random.Range(-13f, 13f), 8, 0);
+                GameObject newEnemy = Instantiate(_enemyPrefab, posToSpawn, Quaternion.identity);
+                newEnemy.transform.parent = _enemyContainer.transform;
+            }
+
             yield return new WaitForSeconds(_spawnRate);
         }
     }

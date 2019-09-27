@@ -9,7 +9,7 @@ public class Player : MonoBehaviour
 
     // TODO: set up Bounds object with camera view limits
     [SerializeField]
-    private float _horizontalBound = 13f;
+    private float _horizontalBound = 11.5f;
     [SerializeField]
     private float _verticalBound = 3.8f;
 
@@ -24,20 +24,11 @@ public class Player : MonoBehaviour
     [SerializeField]
     private GameObject _laserPrefab = null;
 
-    // Player Mesh for animations
-    private Transform _playerMeshObjectTransform;
-    [SerializeField]
-    private float _bankAngleMultiplier = 15f;
-    [SerializeField]
-    private float _bankAngleSmooth = 20f;
-
     private SpawnManager _spawnManager;
 
     // Start is called before the first frame update
     void Start()
     {
-        _playerMeshObjectTransform = this.gameObject.transform.GetChild(0);
-
         _spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
 
         transform.position = new Vector3(0, 0, 0);
@@ -47,11 +38,6 @@ public class Player : MonoBehaviour
     void Update()
     {
         CalculateMovement();
-
-        if (_playerMeshObjectTransform != null)
-        {
-            RotatePlayerMesh();
-        }
 
         if (Input.GetKeyDown(KeyCode.Space) & Time.time > _nextFire)
         {
@@ -96,15 +82,6 @@ public class Player : MonoBehaviour
     {
         _nextFire = Time.time + _fireRate;
         Instantiate(_laserPrefab, transform.position + new Vector3(0f, 1f, 0f), Quaternion.identity);
-    }
-
-    // Maybe this should be done in a PlayerMesh script?
-    void RotatePlayerMesh()
-    {
-        // Set Player rotation for bank effect
-        float horizontalInput = Input.GetAxis("Horizontal");
-        Quaternion target = Quaternion.Euler(-90, 0, -horizontalInput * _bankAngleMultiplier);
-        _playerMeshObjectTransform.rotation = Quaternion.Slerp(_playerMeshObjectTransform.rotation, target, Time.deltaTime * _bankAngleSmooth);
     }
 
     public void Damage()
