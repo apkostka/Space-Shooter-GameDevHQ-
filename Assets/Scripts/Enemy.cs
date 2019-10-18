@@ -14,9 +14,31 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     private float _horizontalBound = 10f;
 
+    [SerializeField]
+    private int _pointsWorth = 10;
+
+    private bool _isDestroyed = false;
+
+    private Player _player;
+    private Animator _animator;
+
     // Start is called before the first frame update
     void Start()
     {
+        _player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+
+        if (_player == null)
+        {
+            Debug.LogError("Player is null");
+        }
+
+        _animator = this.gameObject.GetComponent<Animator>();
+
+        if (_animator == null)
+        {
+            Debug.LogError("Enemy Animator is null");
+        }
+
         _speed = Random.Range(_baseSpeed - _speedRangeSize, _baseSpeed + _speedRangeSize);
 
         SetRandomPositionAtTop();
@@ -33,11 +55,13 @@ public class Enemy : MonoBehaviour
         {
             SetRandomPositionAtTop();
         }
-
     }
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("Enemy Hit: " + other.tag);
+        if (_isDestroyed)
+        {
+            return;
+        }
 
         if (other.tag == "Player")
         {
@@ -46,19 +70,25 @@ public class Enemy : MonoBehaviour
             if (player != null)
             {
                 player.Damage();
-                Destroy(this.gameObject);
+                DestroyEnemy();
             }
         }
         else if (other.tag == "Laser")
         {
+            _player.IncreaseScore(_pointsWorth);
             Destroy(other.gameObject);
-            Destroy(this.gameObject);
+            DestroyEnemy();
         }
 
     }
 
     void CalculateMovement()
     {
+        if (_isDestroyed)
+        {
+            return;
+        }
+
         Vector3 direction = new Vector3(0, -1, 0);
         transform.Translate(direction * _speed * Time.deltaTime);
     }
@@ -66,5 +96,12 @@ public class Enemy : MonoBehaviour
     void SetRandomPositionAtTop()
     {
         transform.position = new Vector3(Random.Range(-_horizontalBound, _horizontalBound), _verticalBound, 0);
+    }
+
+    private void DestroyEnemy()
+    {
+        _isDestroyed = true;
+        _animator.SetTrigger("OnEnemyDeath");
+        Destroy(this.gameObject, 2.8f);
     }
 }

@@ -6,6 +6,7 @@ public class Player : MonoBehaviour
 {
     [SerializeField]
     private float _speed = 10f;
+    private float _baseSpeed = 10f;
 
     // TODO: set up Bounds object with camera view limits
     [SerializeField]
@@ -28,17 +29,48 @@ public class Player : MonoBehaviour
     [SerializeField]
     private bool _tripleshotActive = false;
     [SerializeField]
-    private float _tripleshotDuration = 5f;
+    private bool _speedBoostActive = false;
     [SerializeField]
-    private GameObject _tripleshotPrefab;
+    private bool _shieldActive = false;
+
+    [SerializeField]
+    private float _tripleshotDuration = 5f;
     private IEnumerator _tripleshotCoroutine;
 
+    [SerializeField]
+    private float _speedBoostDuration = 5f;
+    [SerializeField]
+    private float _speedBoostMultiplier = 1.5f;
+    private IEnumerator _speedBoostCoroutine;
+
+    [SerializeField]
+    private GameObject _tripleshotPrefab;
+
+    [SerializeField]
+    private GameObject _shieldVisual;
+
     private SpawnManager _spawnManager;
+
+    [SerializeField]
+    private int _score = 0;
+
+    private UIManager _ui;
 
     // Start is called before the first frame update
     void Start()
     {
         _spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
+        _ui = GameObject.FindGameObjectWithTag("UI").GetComponent<UIManager>();
+
+        if (_spawnManager == null)
+        {
+            Debug.LogError("Spawn Manager is null");
+        }
+
+        if (_ui == null)
+        {
+            Debug.LogError("UI is null");
+        }
 
         transform.position = new Vector3(0, 0, 0);
     }
@@ -102,7 +134,16 @@ public class Player : MonoBehaviour
 
     public void Damage()
     {
+        if (_shieldActive)
+        {
+            _shieldActive = false;
+            _shieldVisual.SetActive(false);
+            return;
+        }
+        
         _lives--;
+
+        _ui.UpdateLives(_lives);
 
         if (_lives < 1)
         {
@@ -111,28 +152,55 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void Powerup(string powerupTag)
+    public void IncreaseScore(int points)
     {
-        switch (powerupTag)
+        _score += points;
+        _ui.UpdateScore(_score.ToString());
+    }
+
+    public void TripleShotActive()
+    {
+        _tripleshotActive = true;
+
+        if (_tripleshotCoroutine != null)
         {
-            case "Tripleshot":
-                _tripleshotActive = true;
-
-                if (_tripleshotCoroutine != null)
-                {
-                    StopCoroutine(_tripleshotCoroutine);
-                }
-
-                _tripleshotCoroutine = TripleshotDuration();
-                StartCoroutine(_tripleshotCoroutine);
-                
-                break;
+            StopCoroutine(_tripleshotCoroutine);
         }
+
+        _tripleshotCoroutine = TripleshotDuration();
+        StartCoroutine(_tripleshotCoroutine);
+    }
+
+    public void SpeedBoostActive()
+    {
+        _speedBoostActive = true;
+        _speed = _baseSpeed * _speedBoostMultiplier;
+
+        if (_speedBoostCoroutine != null)
+        {
+            StopCoroutine(_speedBoostCoroutine);
+        }
+
+        _speedBoostCoroutine = SpeedBoostDuration();
+        StartCoroutine(_speedBoostCoroutine);
+    }
+
+    public void ShieldActive()
+    {
+        _shieldActive = true;
+        _shieldVisual.SetActive(true);
     }
 
     IEnumerator TripleshotDuration()
     {
         yield return new WaitForSeconds(_tripleshotDuration);
         _tripleshotActive = false;
+    }
+
+    IEnumerator SpeedBoostDuration()
+    {
+        yield return new WaitForSeconds(_speedBoostDuration);
+        _speedBoostActive = false;
+        _speed = _baseSpeed;
     }
 }

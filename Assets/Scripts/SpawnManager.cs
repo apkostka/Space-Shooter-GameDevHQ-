@@ -7,7 +7,7 @@ public class SpawnManager : MonoBehaviour
     [SerializeField]
     private float _enemySpawnRate = 1.5f;
     [SerializeField]
-    private float _powerupSpawnRateBase = 5f;
+    private float _powerupSpawnRateBase = 7f;
     private float _powerupSpawnRateRange = 2f;
 
     [SerializeField]
@@ -19,7 +19,7 @@ public class SpawnManager : MonoBehaviour
     private GameObject _enemyContainer;
 
     [SerializeField]
-    private GameObject _tripleshotPowerupPrefab;
+    private GameObject[] powerups;
 
     private bool _stopSpawning = false;
 
@@ -56,7 +56,8 @@ public class SpawnManager : MonoBehaviour
         while (_stopSpawning == false)
         {
             Vector3 posToSpawn = new Vector3(Random.Range(-9f, 9f), 8, 0);
-            GameObject newPowerup = Instantiate(_tripleshotPowerupPrefab, posToSpawn, Quaternion.identity);
+            int randomPowerup = Random.Range(0, powerups.Length);
+            GameObject newPowerup = Instantiate(powerups[randomPowerup], posToSpawn, Quaternion.identity);
 
             yield return new WaitForSeconds(Random.Range(_powerupSpawnRateBase - _powerupSpawnRateRange, _powerupSpawnRateBase + _powerupSpawnRateRange));
         }

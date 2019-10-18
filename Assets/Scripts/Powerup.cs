@@ -11,6 +11,9 @@ public class Powerup : MonoBehaviour
     private float _speed = 3f;
 
     [SerializeField]
+    private int _powerupId;
+
+    [SerializeField]
     private float _verticalBound = 8f;
     [SerializeField]
     private float _horizontalBound = 9f;
@@ -37,15 +40,27 @@ public class Powerup : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("Powerup Hit: " + other.tag);
-
         if (other.tag == "Player")
         {
             Player player = other.transform.GetComponent<Player>();
 
             if (player != null)
             {
-                player.Powerup(this.tag);
+                switch (_powerupId)
+                {
+                    case 0:
+                        player.TripleShotActive();
+                        break;
+
+                    case 1:
+                        player.SpeedBoostActive();
+                        break;
+
+                    case 2:
+                        player.ShieldActive();
+                        break;
+                }
+                
                 Destroy(this.gameObject);
             }
         }
