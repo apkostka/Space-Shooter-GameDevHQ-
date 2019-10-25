@@ -8,6 +8,12 @@ public class Enemy : MonoBehaviour
     private float _speed;
     private float _baseSpeed = 3;
     private float _speedRangeSize = 1;
+    private float _maxSpeed = 5;
+
+    [SerializeField]
+    private GameObject _laserPrefab = null;
+    private float _laserFireRate = 5f;
+    private float _canFire = -1f;
 
     [SerializeField]
     private float _verticalBound = 8f;
@@ -21,6 +27,7 @@ public class Enemy : MonoBehaviour
 
     private Player _player;
     private Animator _animator;
+    private AudioSource _audioSource;
 
     // Start is called before the first frame update
     void Start()
@@ -39,6 +46,13 @@ public class Enemy : MonoBehaviour
             Debug.LogError("Enemy Animator is null");
         }
 
+        _audioSource = GetComponent<AudioSource>();
+        
+        if (_audioSource == null)
+        {
+            Debug.LogError("Enemy audio source is null");
+        }
+
         _speed = Random.Range(_baseSpeed - _speedRangeSize, _baseSpeed + _speedRangeSize);
 
         SetRandomPositionAtTop();
@@ -54,6 +68,15 @@ public class Enemy : MonoBehaviour
         if (transform.position.y < -_verticalBound + 1) // makes up for length of ship
         {
             SetRandomPositionAtTop();
+            _speed = Mathf.Min(_speed * 1.25f, _maxSpeed);
+        }
+
+        if (Time.time > _canFire)
+        {
+            float fireRate = Random.Range(_laserFireRate - 2, _laserFireRate + 2);
+            _canFire = Time.time + fireRate;
+            GameObject laser = Instantiate(_laserPrefab, transform.position + new Vector3(0f, -1.5f, 0f), Quaternion.identity);
+            laser.GetComponent<Laser>().Fire(-1, _speed, true);
         }
     }
     private void OnTriggerEnter2D(Collider2D other)
@@ -72,12 +95,6 @@ public class Enemy : MonoBehaviour
                 player.Damage();
                 DestroyEnemy();
             }
-        }
-        else if (other.tag == "Laser")
-        {
-            _player.IncreaseScore(_pointsWorth);
-            Destroy(other.gameObject);
-            DestroyEnemy();
         }
 
     }
@@ -98,10 +115,12 @@ public class Enemy : MonoBehaviour
         transform.position = new Vector3(Random.Range(-_horizontalBound, _horizontalBound), _verticalBound, 0);
     }
 
-    private void DestroyEnemy()
+    public void DestroyEnemy(bool forPoints = false)
     {
         _isDestroyed = true;
         _animator.SetTrigger("OnEnemyDeath");
+        _audioSource.Play();
+        _player.IncreaseScore(_pointsWorth);
         Destroy(this.gameObject, 2.8f);
     }
 }

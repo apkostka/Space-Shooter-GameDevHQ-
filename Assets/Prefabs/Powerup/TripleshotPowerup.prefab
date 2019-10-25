@@ -134,11 +134,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 640bc1c7712b388408f78c11e9e8181f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _powerupPrefab: {fileID: 0}
   _speed: 3
   _powerupId: 0
   _verticalBound: 8
   _horizontalBound: 9
+  _audioClip: {fileID: 8300000, guid: 5ee343246919d2b4bba63ae629e95494, type: 3}
 --- !u!111 &6159293408161462714
 Animation:
   m_ObjectHideFlags: 0
@@ -148,9 +148,9 @@ Animation:
   m_GameObject: {fileID: 6159293408161462704}
   m_Enabled: 1
   serializedVersion: 3
-  m_Animation: {fileID: 7400000, guid: 7f68aaf6efb12e34cbcc17418033c532, type: 2}
+  m_Animation: {fileID: 0}
   m_Animations:
-  - {fileID: 7400000, guid: 7f68aaf6efb12e34cbcc17418033c532, type: 2}
+  - {fileID: 0}
   m_WrapMode: 0
   m_PlayAutomatically: 1
   m_AnimatePhysics: 0

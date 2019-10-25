@@ -5,9 +5,6 @@ using UnityEngine;
 public class Powerup : MonoBehaviour
 {
     [SerializeField]
-    private GameObject _powerupPrefab;
-
-    [SerializeField]
     private float _speed = 3f;
 
     [SerializeField]
@@ -17,6 +14,9 @@ public class Powerup : MonoBehaviour
     private float _verticalBound = 8f;
     [SerializeField]
     private float _horizontalBound = 9f;
+
+    [SerializeField]
+    private AudioClip _audioClip;
 
     // Start is called before the first frame update
     void Start()
@@ -33,7 +33,7 @@ public class Powerup : MonoBehaviour
         // if bottom of screen, respawn at top with new random x position
         if (transform.position.y < -_verticalBound + 1) // makes up for length of ship
         {
-            SetRandomPositionAtTop();
+            Destroy(this.gameObject);
         }
 
     }
@@ -43,6 +43,8 @@ public class Powerup : MonoBehaviour
         if (other.tag == "Player")
         {
             Player player = other.transform.GetComponent<Player>();
+
+            AudioSource.PlayClipAtPoint(_audioClip, transform.position);
 
             if (player != null)
             {
@@ -60,7 +62,7 @@ public class Powerup : MonoBehaviour
                         player.ShieldActive();
                         break;
                 }
-                
+
                 Destroy(this.gameObject);
             }
         }

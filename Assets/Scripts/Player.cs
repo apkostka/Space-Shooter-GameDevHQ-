@@ -49,7 +49,14 @@ public class Player : MonoBehaviour
     [SerializeField]
     private GameObject _shieldVisual;
 
+    [SerializeField]
+    private GameObject _leftEngineFireVisual;
+    [SerializeField]
+    private GameObject _rightEngineFireVisual;
+
     private SpawnManager _spawnManager;
+
+    private Animator _animator;
 
     [SerializeField]
     private int _score = 0;
@@ -61,6 +68,12 @@ public class Player : MonoBehaviour
     {
         _spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
         _ui = GameObject.FindGameObjectWithTag("UI").GetComponent<UIManager>();
+        _animator = GameObject.Find("Ship").GetComponent<Animator>();
+
+        if (_animator == null)
+        {
+            Debug.LogError("Enemy Animator is null");
+        }
 
         if (_spawnManager == null)
         {
@@ -96,6 +109,9 @@ public class Player : MonoBehaviour
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
 
+        // Handle turn animation
+        _animator.SetFloat("Strafe", horizontalInput);
+
         // Set movement
         Vector3 direction = new Vector3(horizontalInput, verticalInput, 0);
 
@@ -122,13 +138,13 @@ public class Player : MonoBehaviour
     void FireLaser()
     {
         _nextFire = Time.time + _fireRate;
-        if (_tripleshotActive)
+        GameObject prefab = _tripleshotActive ? _tripleshotPrefab : _laserPrefab;
+
+        GameObject laser = Instantiate(prefab, transform.position, Quaternion.identity);
+        Laser[] lasers = laser.GetComponentsInChildren<Laser>();
+        for (int i = 0; i < lasers.Length; i++)
         {
-            Instantiate(_tripleshotPrefab, transform.position, Quaternion.identity);
-        }
-        else
-        {
-            Instantiate(_laserPrefab, transform.position + new Vector3(0f, 1f, 0f), Quaternion.identity);
+            lasers[i].Fire(1);
         }
     }
 
@@ -144,6 +160,17 @@ public class Player : MonoBehaviour
         _lives--;
 
         _ui.UpdateLives(_lives);
+
+        switch (_lives)
+        {
+            case 2:
+                _leftEngineFireVisual.SetActive(true);
+                break;
+
+            case 1:
+                _rightEngineFireVisual.SetActive(true);
+                break;
+        }
 
         if (_lives < 1)
         {
